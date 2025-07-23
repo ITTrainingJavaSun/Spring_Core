@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+<!--    <bean id="engine" class="com.example.model.Engine">-->
+<!--        &lt;!&ndash; collaborators and configuration for this bean go here &ndash;&gt;-->
+<!--    </bean>-->
+
+<!--Factory                      -->
+<!--C1: Static factory method    -->
+<!--    <bean id="engine" class="com.example.factory.EngineFactory"-->
+<!--          factory-method="createEngine" />-->
+<!--C2:Instance factory method   -->
+<!--    <bean id="engineFactory" class="com.example.factory.EngineFactory" />-->
+<!--    <bean id="engine" factory-bean="engineFactory" factory-method="buildEngine" />-->
+
+
+    <bean id="car" class="com.example.model.Car">
+<!--        <constructor-arg ref="engine" />-->
+        <property name="engine" ref="engine"/>
+    </bean>
+<!-- Bean Scope & Bean Lifecycle  -->
+    <!-- Bean Engine -->
+    <bean id="engine" class="com.example.model.Engine" scope="prototype"
+          init-method="init" destroy-method="destroy" />
+    <!-- more bean definitions go here -->
+
+</beans>
