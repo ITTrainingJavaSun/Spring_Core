@@ -15,6 +15,6 @@ public class UserService {
     @Transactional
     public void registerUser(String name) {
         User user = new User(name);
-        userDao.save(user);
+        userDao.saveUser(user);
     }
 }
