@@ -1,6 +1,7 @@
 package com.example;
 
 import com.example.config.AppConfig;
+import com.example.dao.AspectDao;
 import com.example.dao.ProductDao;
 import com.example.dao.ProductDaoImpl;
 import com.example.dao.UserDao;
@@ -86,24 +87,37 @@ public class MainApp {
 //            System.out.println(u.getId() + " - " + u.getName());
 //        }
 
-//        5. Transaction Management
-        ApplicationContext context =
-                new ClassPathXmlApplicationContext("beans.xml");
-
-        // Test rollback JDBC
-        UserService userService = context.getBean(UserService.class);
-        try {
-            userService.saveTwoUsersWithRollback(new User("Alice"), new User("Bob"));
-        } catch (Exception e) {
-            System.out.println("User rollback OK: " + e.getMessage());
+////        5. Transaction Management
+//        ApplicationContext context =
+//                new ClassPathXmlApplicationContext("beans.xml");
+//
+//        // Test rollback JDBC
+//        UserService userService = context.getBean(UserService.class);
+//        try {
+//            userService.saveTwoUsersWithRollback(new User("Alice"), new User("Bob"));
+//        } catch (Exception e) {
+//            System.out.println("User rollback OK: " + e.getMessage());
+//        }
+//
+//        // Test rollback Hibernate
+//        ProductService productService = context.getBean(ProductService.class);
+//        try {
+//            productService.saveTwoProductsWithRollback(new Product("TV","Samsung"), new Product("Laptop", "Acer"));
+//        } catch (Exception e) {
+//            System.out.println("Product rollback OK: " + e.getMessage());
+//        }
+//        6. AOP
+//        ApplicationContext context = new ClassPathXmlApplicationContext("beans-aspect.xml");
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+//        AspectDao aspectDao = context.getBean("aspectDao", AspectDao.class);
+        AspectDao aspectDao = context.getBean(AspectDao.class);
+        UserDao userDao = context.getBean(UserDao.class);
+        List<User> users = userDao.getAllUsers();
+        for (User u : users) {
+            System.out.println(u.getId() + " - " + u.getName());
         }
+//        aspectDao.saveDao();
+//        aspectDao.deleteDao();
 
-        // Test rollback Hibernate
-        ProductService productService = context.getBean(ProductService.class);
-        try {
-            productService.saveTwoProductsWithRollback(new Product("TV","Samsung"), new Product("Laptop", "Acer"));
-        } catch (Exception e) {
-            System.out.println("Product rollback OK: " + e.getMessage());
-        }
     }
 }
