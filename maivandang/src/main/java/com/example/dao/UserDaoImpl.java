@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,11 +15,13 @@ public class UserDaoImpl implements UserDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Transactional
     @Override
     public void saveUser(User user) {
         String sql = "INSERT INTO users (name) VALUES (?)";
         jdbcTemplate.update(sql, user.getName());
     }
+
 
     @Override
     public List<User> getAllUsers() {

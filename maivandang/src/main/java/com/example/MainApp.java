@@ -8,6 +8,7 @@ import com.example.model.Car;
 import com.example.model.Engine;
 import com.example.model.Product;
 import com.example.model.User;
+import com.example.service.ProductService;
 import com.example.service.UserService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -69,19 +70,40 @@ public class MainApp {
 //
 //        context.close();
 
-//        4. Spring ORM + Hibernate / JPA
-        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
-        ProductDao productDao = context.getBean("productDao", ProductDao.class);
-        UserDao userDao = context.getBean("userDao",UserDao.class);
+////        4. Spring ORM + Hibernate / JPA
+//        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+//        ProductDao productDao = context.getBean("productDao", ProductDao.class);
+//        UserDao userDao = context.getBean("userDao",UserDao.class);
+//
+//        productDao.saveProduct(new Product("Giày thể thao", "Nike"));
+//
+//        List<Product> products = productDao.getAllProducts();
+//        products.forEach(product -> System.out.println(product.getId() + " - " + product.getName() + " - " +product.getSupplier()));
+//
+//
+//        List<User> users = userDao.getAllUsers();
+//        for (User u : users) {
+//            System.out.println(u.getId() + " - " + u.getName());
+//        }
 
-        productDao.saveProduct(new Product("Giày thể thao", "Nike"));
+//        5. Transaction Management
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("beans.xml");
 
-        List<Product> products = productDao.getAllProducts();
-        products.forEach(product -> System.out.println(product.getId() + " - " + product.getName() + " - " +product.getSupplier()));
+        // Test rollback JDBC
+        UserService userService = context.getBean(UserService.class);
+        try {
+            userService.saveTwoUsersWithRollback(new User("Alice"), new User("Bob"));
+        } catch (Exception e) {
+            System.out.println("User rollback OK: " + e.getMessage());
+        }
 
-        List<User> users = userDao.getAllUsers();
-        for (User u : users) {
-            System.out.println(u.getId() + " - " + u.getName());
+        // Test rollback Hibernate
+        ProductService productService = context.getBean(ProductService.class);
+        try {
+            productService.saveTwoProductsWithRollback(new Product("TV","Samsung"), new Product("Laptop", "Acer"));
+        } catch (Exception e) {
+            System.out.println("Product rollback OK: " + e.getMessage());
         }
     }
 }
