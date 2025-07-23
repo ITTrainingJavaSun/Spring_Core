@@ -14,15 +14,18 @@
 <!--    <bean id="engine" class="com.example.factory.EngineFactory"-->
 <!--          factory-method="createEngine" />-->
 <!--C2:Instance factory method   -->
-    <bean id="engineFactory" class="com.example.factory.EngineFactory" />
-    <bean id="engine" factory-bean="engineFactory" factory-method="buildEngine" />
+<!--    <bean id="engineFactory" class="com.example.factory.EngineFactory" />-->
+<!--    <bean id="engine" factory-bean="engineFactory" factory-method="buildEngine" />-->
 
 
     <bean id="car" class="com.example.model.Car">
 <!--        <constructor-arg ref="engine" />-->
         <property name="engine" ref="engine"/>
     </bean>
-
+<!-- Bean Scope & Bean Lifecycle  -->
+    <!-- Bean Engine -->
+    <bean id="engine" class="com.example.model.Engine" scope="prototype"
+          init-method="init" destroy-method="destroy" />
     <!-- more bean definitions go here -->
 
 </beans>
