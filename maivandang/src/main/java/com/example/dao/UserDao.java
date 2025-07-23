@@ -1,7 +1,9 @@
 package com.example.dao;
 
 import com.example.model.User;
+import java.util.List;
 
 public interface UserDao {
-    void save(User user);
+    void saveUser(User user);
+    List<User> getAllUsers();
 }

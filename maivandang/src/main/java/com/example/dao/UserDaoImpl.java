@@ -1,20 +1,31 @@
 package com.example.dao;
 
 import com.example.model.User;
-import org.hibernate.SessionFactory;
-import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
+@Repository
 public class UserDaoImpl implements UserDao {
 
-    private SessionFactory sessionFactory;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    @Override
+    public void saveUser(User user) {
+        String sql = "INSERT INTO users (name) VALUES (?)";
+        jdbcTemplate.update(sql, user.getName());
     }
 
     @Override
-    public void save(User user) {
-        Session session = sessionFactory.getCurrentSession();
-        session.save(user);
+    public List<User> getAllUsers() {
+        String sql = "SELECT * FROM users";
+        return jdbcTemplate.query(sql, userRowMapper);
     }
+
+    private RowMapper<User> userRowMapper = (rs, rowNum) ->
+            new User(rs.getInt("id"), rs.getString("name"));
 }
