@@ -21,6 +21,7 @@ public class ProductDaoImpl implements ProductDao {
     @Transactional
     @Override
     public void saveProduct(Product product) {
+
         sessionFactory.getCurrentSession().save(product);
     }
 

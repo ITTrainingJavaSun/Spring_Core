@@ -17,4 +17,16 @@ public class UserService {
         User user = new User(name);
         userDao.saveUser(user);
     }
+
+    @Transactional
+    public void saveTwoUsersWithRollback(User user1, User user2) {
+        userDao.saveUser(user1);
+
+        // Giả lập lỗi để kiểm tra rollback
+        if (true) {
+            throw new RuntimeException("Intentional Exception to trigger rollback");
+        }
+
+        userDao.saveUser(user2);
+    }
 }
