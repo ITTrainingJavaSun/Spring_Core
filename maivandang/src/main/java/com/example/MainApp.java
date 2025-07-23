@@ -1,9 +1,12 @@
 package com.example;
 
 import com.example.config.AppConfig;
+import com.example.dao.ProductDao;
+import com.example.dao.ProductDaoImpl;
 import com.example.dao.UserDao;
 import com.example.model.Car;
 import com.example.model.Engine;
+import com.example.model.Product;
 import com.example.model.User;
 import com.example.service.UserService;
 import org.springframework.context.ApplicationContext;
@@ -51,19 +54,34 @@ public class MainApp {
 //
 //        context.close();
 
-//        3. DataSource & JDBC Access
-        AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(AppConfig.class);
-        UserDao userDao = context.getBean(UserDao.class);
-//      Thêm user mới
-        userDao.saveUser(new User(0, "Mai Văn Đăng"));
+////        3. DataSource & JDBC Access
+//        AnnotationConfigApplicationContext context =
+//                new AnnotationConfigApplicationContext(AppConfig.class);
+//        UserDao userDao = context.getBean(UserDao.class);
+////      Thêm user mới
+//        userDao.saveUser(new User(0, "Mai Văn Đăng"));
+//
+////      Lấy danh sách user
+//        List<User> users = userDao.getAllUsers();
+//        for (User u : users) {
+//            System.out.println(u.getId() + " - " + u.getName());
+//        }
+//
+//        context.close();
 
-//      Lấy danh sách user
+//        4. Spring ORM + Hibernate / JPA
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        ProductDao productDao = context.getBean("productDao", ProductDao.class);
+        UserDao userDao = context.getBean("userDao",UserDao.class);
+
+        productDao.saveProduct(new Product("Giày thể thao", "Nike"));
+
+        List<Product> products = productDao.getAllProducts();
+        products.forEach(product -> System.out.println(product.getId() + " - " + product.getName() + " - " +product.getSupplier()));
+
         List<User> users = userDao.getAllUsers();
         for (User u : users) {
             System.out.println(u.getId() + " - " + u.getName());
         }
-
-        context.close();
     }
 }
