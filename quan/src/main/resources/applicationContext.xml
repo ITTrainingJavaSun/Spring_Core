@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<context:component-scan base-package="com.example.xml"/>
+<aop:aspectj-autoproxy/>
+<tx:annotation-driven transaction-manager="transactionManager"/>
+
+<!-- Bean cho tầng DAO  -->
+<bean id="studentDao" class="com.example.classic.dao.StudentDaoImpl">
+	<property name="entityManagerFactory" ref="entityManagerFactory"/>
+</bean> 
+
+<!--  Bean cho tầng Service -->
+<bean id="studentService" class="com.example.classic.service.StudentServiceImpl">
+	<property name="studentDao" ref="studentDao"/>
+</bean>
+
+<!--  Bean cho Aspect -->
+<bean id="loggingAspect" class="com.example.classic.aop.LoggingAspect"/>
+
+<aop:config>
+	<!--Định nghĩa một Pointcut - một "bộ lọc" để chọn ra các phương thức muốn áp dụng advice.
+            'id="serviceMethods"' là tên của bộ lọc này.
+            'expression="execution(* com.example.classic.service.*.*(..))"' có nghĩa là:
+            - execution(): Áp dụng cho việc thực thi phương thức.
+            - *: Bất kỳ kiểu trả về nào.
+            - com.example.classic.service.*: Trong bất kỳ class nào của package service.
+            - .*: Bất kỳ tên phương thức nào.
+            - (..): Với bất kỳ tham số nào.
+    -->
+        <aop:pointcut id="serviceMethods" expression="execution(* com.example.classic.service.*.*(..))"/>
+    
+    <!--  Định nghĩa một Aspect - một module chứa các advice và pointcut -->
+     	
+     	<aop:aspect ref="loggingAspect">
+     		<!--
+                Áp dụng Advice vào Pointcut
+                - aop:before: Chỉ định rằng advice sẽ chạy TRƯỚC phương thức mục tiêu.
+                - pointcut-ref="serviceMethods": Áp dụng vào các phương thức đã được lọc bởi pointcut 'serviceMethods'.
+                - method="logBeforeExecution": Chỉ định rằng phương thức 'logBeforeExecution' trong bean 'loggingAspect' sẽ là advice được thực thi.
+            -->
+     		<aop:before pointcut-ref="serviceMethods" method="logBeforeExecution"/>
+     	</aop:aspect>
+     	
+</aop:config>
+
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+	<tx:attributes>
+		<!-- Áp dụng quy tắc giao dịch cho các phương thức -->
+		<!-- 
+             - name="create*": Cho tất cả các phương thức bắt đầu bằng "create".
+             - propagation="REQUIRED": Nếu đã có giao dịch, tham gia vào. Nếu chưa, tạo một giao dịch mới.
+        -->
+		<tx:method name="create*" propagation="REQUIRED"/>
+		<!--
+             - name="list*": Cho tất cả các phương thức bắt đầu bằng "list".
+             - read-only="true": Tối ưu hóa cho các thao tác chỉ đọc.
+        -->
+            
+		<tx:method name="list*" read-only="true"/>
+	</tx:attributes>
+</tx:advice>
+
+<aop:config>
+<!-- Áp dụng các quy tắc transaction (txAdvice) vào các phương thức của service -->
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods"/>
+</aop:config>
+
+<!--  infrastructure Beans -->
+
+<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_demo"/>
+        <property name="username" value="root"/>
+        <property name="password" value="Ollehmyson101!"/> 
+    </bean>
+    
+<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        
+        <property name="mappingResources" value="META-INF/orm.xml"/>
+        
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"/>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+</beans>
